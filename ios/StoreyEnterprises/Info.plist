@@ -28,7 +28,6 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	  <!-- Do not change NSAllowsArbitraryLoads to true, or you will risk app rejection! -->
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 		<key>NSAllowsLocalNetworking</key>
@@ -38,6 +37,14 @@
 	<string></string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Inter-Medium.ttf</string>
+		<string>Inter-Bold.ttf</string>
+		<string>Inter-Regular.ttf</string>
+		<string>Inter-SemiBold.ttf</string>
+		<string>Lucide.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -72,7 +79,15 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<!-- NO, so React Native's <StatusBar> actually controls the bar. With the
+	     default YES, iOS asks the view controller instead and every barStyle set
+	     from JS is silently ignored — the clock stayed dark on the dark splash,
+	     onboarding, auth and profile headers. -->
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<true/>
+	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Storey Enterprises uses the camera so you can photograph a package or a proof of delivery for a shipment.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Storey Enterprises needs access to your photos so you can attach package photos to a booking or set a profile photo.</string>
 </dict>
 </plist>
