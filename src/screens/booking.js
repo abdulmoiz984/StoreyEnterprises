@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { goTo } from '../navigation/routes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import Lucide from '@react-native-vector-icons/lucide';
@@ -152,7 +153,7 @@ export function BookingScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Back"
-                onPress={() => (step === 1 ? navigation.navigate('Home') : go(step - 1))}
+                onPress={() => (step === 1 ? goTo(navigation, 'Home') : go(step - 1))}
                 style={styles.headerBtn}>
                 <Lucide name="chevron-left" size={fS(24)} color={c.ink} />
               </Pressable>
@@ -1004,7 +1005,7 @@ function Confirmation({ shipment, quoted }) {
         <Button variant="secondary" onPress={() => navigation.navigate('Chat', { id: `t-${shipment.id}` })}>
           Message Support
         </Button>
-        <Button variant="ghost" onPress={() => navigation.navigate('Home')}>
+        <Button variant="ghost" onPress={() => goTo(navigation, 'Home')}>
           Return Home
         </Button>
       </View>

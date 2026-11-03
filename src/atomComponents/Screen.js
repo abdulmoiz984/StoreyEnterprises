@@ -1,4 +1,5 @@
 import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { goTo } from '../navigation/routes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Pressable, StatusBar, StyleSheet, View } from 'react-native';
 import Lucide from '@react-native-vector-icons/lucide';
@@ -77,6 +78,9 @@ export function OfflineBanner() {
  * browser back button is unreliable inside its phone frame; a native stack has a
  * real history, so this pops when it can and falls back to `backTo` when this
  * screen was opened as the first in the stack (e.g. from a notification).
+ *
+ * The fallback goes through `goTo`, because most `backTo` values name a TAB,
+ * which a stack screen cannot navigate to directly — see navigation/routes.
  */
 export function StackHeader({ title, right, backTo = 'Home' }) {
   const navigation = useNavigation();
@@ -86,7 +90,7 @@ export function StackHeader({ title, right, backTo = 'Home' }) {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Back"
-        onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate(backTo))}
+        onPress={() => (navigation.canGoBack() ? navigation.goBack() : goTo(navigation, backTo))}
         style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}>
         <Lucide name="chevron-left" size={fS(24)} color={c.ink} />
       </Pressable>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { goTo } from '../navigation/routes';
 import {
   Animated,
   Easing,
@@ -578,7 +579,7 @@ export function ShipmentDetailScreen({ route }) {
               <Button variant="secondary" onPress={() => setRescheduleOpen(true)}>
                 Request reschedule
               </Button>
-              <Button variant="secondary" onPress={() => navigation.navigate('Messages')}>
+              <Button variant="secondary" onPress={() => goTo(navigation, 'Messages')}>
                 Contact support
               </Button>
               <Button

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { goTo } from '../navigation/routes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image, Linking, Modal, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import Lucide from '@react-native-vector-icons/lucide';
@@ -58,7 +59,7 @@ function ProfilePage({ title, subtitle, backTo = 'Profile', children }) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Back"
-          onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate(backTo))}
+          onPress={() => (navigation.canGoBack() ? navigation.goBack() : goTo(navigation, backTo))}
           style={({ pressed }) => [styles.pageBack, pressed && styles.pressed95]}>
           <Lucide name="chevron-left" size={fS(24)} color={c.overlayText} />
         </Pressable>
@@ -201,10 +202,10 @@ export function ProfileScreen() {
                 hint="Square test cards"
                 onPress={() => navigation.navigate('PaymentMethods')}
               />
-              <MenuRow glyph="package" label="My shipments" onPress={() => navigation.navigate('Shipments')} />
+              <MenuRow glyph="package" label="My shipments" onPress={() => goTo(navigation, 'Shipments')} />
               <MenuRow glyph="truck" label="All services" onPress={() => navigation.navigate('Services')} />
               <MenuRow glyph="image" label="Gallery" onPress={() => navigation.navigate('Gallery')} />
-              <MenuRow glyph="message-circle" label="Messages" onPress={() => navigation.navigate('Messages')} last />
+              <MenuRow glyph="message-circle" label="Messages" onPress={() => goTo(navigation, 'Messages')} last />
             </Group>
             <Group title="Support">
               <MenuRow
@@ -351,7 +352,7 @@ export function EditProfileScreen() {
           <Button
             onPress={() => {
               updateUser({ fullName, email, phone: formatPhone(phone), photo, accountType });
-              navigation.navigate('Profile');
+              goTo(navigation, 'Profile');
             }}>
             Save
           </Button>
@@ -412,7 +413,7 @@ export function BillingScreen() {
           <Button
             onPress={() => {
               updateUser({ companyName, facilityType, billingAddress, billingEmail, taxId });
-              navigation.navigate('Profile');
+              goTo(navigation, 'Profile');
             }}>
             Save
           </Button>

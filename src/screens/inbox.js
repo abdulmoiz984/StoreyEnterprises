@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { goTo } from '../navigation/routes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Animated,
@@ -253,7 +254,7 @@ export function NotificationsScreen() {
     else if (target.kind === 'quote') navigation.navigate('Quote', { id: target.id });
     else if (target.kind === 'chat') navigation.navigate('Chat', { id: target.id });
     else if (target.kind === 'pay') navigation.navigate('Payment', { id: target.id });
-    else navigation.navigate('Home');
+    else goTo(navigation, 'Home');
   };
 
   const today = notifications.filter(item => isTodayET(item.at));

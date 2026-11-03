@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { goTo } from '../navigation/routes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Lucide from '@react-native-vector-icons/lucide';
@@ -154,7 +155,7 @@ export function HomeScreen() {
                       openBooking();
                       return;
                     }
-                    navigation.navigate(action.to);
+                    goTo(navigation, action.to);
                   }}
                   style={styles.action}>
                   <Lucide name={action.glyph} size={fS(20)} color={c.primary} />
@@ -180,7 +181,7 @@ export function ServicesScreen() {
   return (
     <Screen tone="surface">
       <View style={[styles.listHeader, { paddingTop: Math.max(vSize(14), insets.top) }]}>
-        <Pressable accessibilityRole="button" onPress={() => navigation.navigate('Profile')} hitSlop={8}>
+        <Pressable accessibilityRole="button" onPress={() => goTo(navigation, 'Profile')} hitSlop={8}>
           <Text style={styles.backLink}>Back</Text>
         </Pressable>
         <Text style={[TEXT.largeTitle, styles.listTitle]}>All services</Text>
@@ -230,7 +231,7 @@ export function ServiceDetailScreen({ route }) {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Back"
-                  onPress={() => navigation.navigate('Home')}
+                  onPress={() => goTo(navigation, 'Home')}
                   style={[styles.floatingBack, { top: Math.max(vSize(12), insets.top) }]}>
                   <Lucide name="chevron-left" size={fS(24)} color={c.ink} />
                 </Pressable>

@@ -6,7 +6,8 @@
  *   2. every relative import resolves to a real file
  *   3. every *named* import exists in the target's exports, following
  *      `export * from` through barrels
- *   4. every navigation target is a route registered in the stack/tabs
+ *   4. every navigation target is registered AND reachable from where it is
+ *      called — a tab is not addressable from a stack screen
  *   5. every Icon `name` is a real Lucide glyph
  *   6. every palette reference resolves, and no file hardcodes a hex colour
  *   7. no web-only global (import.meta, localStorage, window.*) is used
@@ -150,26 +151,56 @@ for (const [file, ast] of asts) {
 /* -------------------------------------------------------- routes: 4 */
 
 const navFile = path.join(SRC, 'navigation', 'StackNavigator.js');
-const routes = new Set();
+
+// Stack routes and TAB routes are tracked separately, and that separation is
+// the whole point. A tab lives inside the `Tabs` navigator, so a stack screen
+// calling `navigation.navigate('Home')` fails at runtime with "The action
+// 'NAVIGATE' ... was not handled by any navigator" and the screen just does not
+// move. An earlier version of this check merged both into one set, so every one
+// of those calls looked valid and ten of them shipped.
+const stackRoutes = new Set();
+const tabRoutes = new Set();
 for (const f of [navFile, path.join(SRC, 'navigation', 'RootStack.js')]) {
   if (!fs.existsSync(f)) continue;
   const src = fs.readFileSync(f, 'utf8');
-  for (const m of src.matchAll(/<(?:Stack|Tab)\.Screen\s+name="([^"]+)"/g)) routes.add(m[1]);
+  for (const m of src.matchAll(/<Stack\.Screen\s+name="([^"]+)"/g)) stackRoutes.add(m[1]);
+  for (const m of src.matchAll(/<Tab\.Screen\s+name="([^"]+)"/g)) tabRoutes.add(m[1]);
 }
-// bottom-tab names live in the TABS table in chrome.js
-const chrome = path.join(SRC, 'components', 'chrome.js');
-if (fs.existsSync(chrome)) {
-  for (const m of fs.readFileSync(chrome, 'utf8').matchAll(/name:\s*'([A-Z][A-Za-z]+)'/g)) routes.add(m[1]);
-}
+const routes = new Set([...stackRoutes, ...tabRoutes]);
 
 if (routes.size === 0) problems.push('no routes found — the route scan needs updating');
 
+// The tab list the `goTo` helper switches on must match the navigator exactly,
+// or a tab added later silently goes back to the broken direct form.
+const routesFile = path.join(SRC, 'navigation', 'routes.js');
+if (fs.existsSync(routesFile) && tabRoutes.size) {
+  const declared = new Set(
+    [...fs.readFileSync(routesFile, 'utf8').matchAll(/'([A-Z][A-Za-z]*)'/g)].map(m => m[1]),
+  );
+  for (const name of tabRoutes) {
+    if (!declared.has(name)) fail(routesFile, `TAB_ROUTES is missing the tab '${name}'`);
+  }
+}
+
+/** Drop comments, so prose that QUOTES a bad call is not read as one. */
+function stripComments(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+}
+
 for (const [file, ast] of asts) {
-  const src = fs.readFileSync(file, 'utf8');
+  const src = stripComments(fs.readFileSync(file, 'utf8'));
   // `replace` is qualified: a bare `.replace('…')` is almost always String#replace.
   for (const m of src.matchAll(/\.(?:navigate|push)\(\s*'([^']+)'|\bnavigation\.replace\(\s*'([^']+)'/g)) {
     const name = m[1] || m[2];
-    if (!routes.has(name)) fail(file, `navigates to unregistered route '${name}'`);
+    if (tabRoutes.has(name) && !stackRoutes.has(name)) {
+      fail(file, `navigates directly to the tab route '${name}' — use goTo() from navigation/routes`);
+    } else if (!routes.has(name)) {
+      fail(file, `navigates to unregistered route '${name}'`);
+    }
+  }
+  // goTo() targets must still be real routes.
+  for (const m of src.matchAll(/\bgoTo\(\s*navigation\s*,\s*'([^']+)'/g)) {
+    if (!routes.has(m[1])) fail(file, `goTo() targets unregistered route '${m[1]}'`);
   }
   for (const m of src.matchAll(/name:\s*'([A-Z][A-Za-z]*Screen)'/g)) {
     if (!routes.has(m[1])) fail(file, `reset/route object names unregistered route '${m[1]}'`);
