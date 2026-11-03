@@ -54,7 +54,9 @@ export function TabBar({ state, navigation }) {
             </View>
           ) : null}
         </View>
-        <Text style={[styles.label, on && styles.labelOn]}>{item.label}</Text>
+        <Text numberOfLines={1} style={[styles.label, on && styles.labelOn]}>
+          {item.label}
+        </Text>
       </Pressable>
     );
   };
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({
     paddingTop: vSize(12),
     ...elevation(3),
   },
-  row: { flexDirection: 'row', alignItems: 'center', gap: hSize(4) },
+  row: { flexDirection: 'row', alignItems: 'center', gap: hSize(2) },
   item: {
     flex: 1,
     minHeight: vSize(56),
@@ -98,7 +100,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: vSize(4),
     borderRadius: RADIUS.md,
-    paddingHorizontal: hSize(4),
+    paddingHorizontal: hSize(2),
     paddingVertical: vSize(8),
   },
   itemOn: { backgroundColor: c.overlayFill },
@@ -119,7 +121,21 @@ const styles = StyleSheet.create({
   label: { ...TEXT.chip, color: c.overlayTextMuted },
   labelOn: { color: c.overlayText },
 
-  fabSlot: { flex: 1, alignItems: 'center', paddingHorizontal: hSize(4) },
+  /**
+   * The FAB column is sized to the button, NOT `flex: 1`.
+   *
+   * As an equal fifth of the bar it took ~80pt and left each label about 64pt
+   * of text width. That fits "Shipments" in Inter on iOS and does NOT on
+   * Android, where the same string measures wider — the label first wrapped to
+   * "Shipment" / "s", then, once `numberOfLines={1}` stopped the wrap, clipped
+   * to "Shipmen…".
+   *
+   * So the FAB column is the button's own width plus a hair, and the row gap
+   * and item padding are 2pt rather than 4. That hands roughly 10pt back to
+   * every label, which is enough for the longest one on both platforms.
+   * `numberOfLines={1}` stays as the guarantee at large accessibility sizes.
+   */
+  fabSlot: { width: hSize(62), alignItems: 'center' },
   fab: {
     width: hSize(56),
     height: hSize(56),
